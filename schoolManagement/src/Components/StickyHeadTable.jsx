@@ -12,9 +12,13 @@ import axios from 'axios';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import FormDialog from '../Pages/AddUser';
-
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-
+import Button from '@mui/material/Button';
 const columns = [
     {id: 'nom', label: 'nom',minWidth:150 },
   { id: 'prenom', label: 'prenom', minWidth: 150 },
@@ -66,6 +70,18 @@ export default function StickyHeadTable() {
   
   const [newUser,setNewUser] = useState(false);
   const [data, setData] = useState([]);
+  const [deleteUserOpen, setdeleteUserOpen] =useState(false);
+  const [deletedUserId, SetDeletedUserId] = useState(0);
+
+  const handleClickOpen = (id) => { 
+    SetDeletedUserId(id);
+    setdeleteUserOpen(true);
+  };
+
+  const handleClose = () => {
+    SetDeletedUserId(0);
+    setdeleteUserOpen(false);
+  };
   async function myFunc() {
   var token=localStorage.getItem("access_token");
   const response = await axios.get('http://localhost:8080/utilisateur/all', {
@@ -77,14 +93,15 @@ setData(response.data);
   
  }
 
-  const deleteUser = async (id) => {
+  const deleteUser = async () => {
       var token=localStorage.getItem("access_token");
       try {
-          const response = await axios.delete("http://localhost:8080/utilisateur/delete/" + id,{ headers: { Authorization: `Bearer ${token}` }});
+          const response = await axios.delete("http://localhost:8080/utilisateur/delete/" + deletedUserId,{ headers: { Authorization: `Bearer ${token}` }});
            console.log(response)
            if (response.status == 200) {
-            let newData = data.filter(user => user.idUtilisateur != id);
+            let newData = data.filter(user => user.idUtilisateur != deletedUserId);
             setData(newData);
+            handleClose();
            }
       } catch(err) {
           console.log('EROOR')
@@ -94,7 +111,7 @@ setData(response.data);
  const Delete = ({id}) => {
   return (
     
-    <div style={{cursor : 'pointer'}} onClick={() =>deleteUser(id)}><DeleteForeverIcon color= 'error'/></div>
+    <div style={{cursor : 'pointer'}} onClick={()=>handleClickOpen(id)}><DeleteForeverIcon color= 'error'/></div>
     
   );
 };
@@ -146,7 +163,28 @@ data.sort(function(e1, e2){return e2.idUtilisateur-e1.idUtilisateur});
 
   return (
     <>
-   
+   <Dialog
+        open={deleteUserOpen}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Use Google's location service?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Let Google help apps determine location. This means sending anonymous
+            location data to Google, even when no apps are running.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Annuler</Button>
+          <Button onClick={deleteUser} autoFocus>
+            Valider
+          </Button>
+        </DialogActions>
+      </Dialog>
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <TableContainer sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label="sticky table">
