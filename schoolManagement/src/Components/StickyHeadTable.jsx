@@ -19,6 +19,10 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import Button from '@mui/material/Button';
+import EditIcon from '@mui/icons-material/Edit';
+import AlertDialogSlide from './update';
+import UpdateForm from './update';
+import SearchAppBar from './bar';
 const columns = [
     {id: 'nom', label: 'nom',minWidth:150 },
   { id: 'prenom', label: 'prenom', minWidth: 150 },
@@ -67,12 +71,24 @@ const columns = [
 var rows;
 var tableaux;
 export default function StickyHeadTable() {
-  
+  const [Editopen, setEditOpen] = useState(false);
+  const [Editopen1, setEditOpen1] = useState(false);
+  const [state, setState] = useState(false)
   const [newUser,setNewUser] = useState(false);
   const [data, setData] = useState([]);
   const [deleteUserOpen, setdeleteUserOpen] =useState(false);
   const [deletedUserId, SetDeletedUserId] = useState(0);
+  const [updatedUserId, SetUpdatedUserId] = useState(0);
 
+  const handleEditOpen = (id) => {
+    SetUpdatedUserId(id);
+    
+    setEditOpen1(!Editopen1);
+  };
+  const handleEditClose = () => {
+    
+    
+  };
   const handleClickOpen = (id) => { 
     SetDeletedUserId(id);
     setdeleteUserOpen(true);
@@ -84,7 +100,7 @@ export default function StickyHeadTable() {
   };
   async function myFunc() {
   var token=localStorage.getItem("access_token");
-  const response = await axios.get('http://localhost:8080/utilisateur/all', {
+  const response = await axios.get('http://localhost:8080/GDI/utilisateur/all', {
     headers: { Authorization: `Bearer ${token}` }
     
 });
@@ -96,7 +112,7 @@ setData(response.data);
   const deleteUser = async () => {
       var token=localStorage.getItem("access_token");
       try {
-          const response = await axios.delete("http://localhost:8080/utilisateur/delete/" + deletedUserId,{ headers: { Authorization: `Bearer ${token}` }});
+          const response = await axios.Action("http://localhost:8080/utilisateur/Action/" + deletedUserId,{ headers: { Authorization: `Bearer ${token}` }});
            console.log(response)
            if (response.status == 200) {
             let newData = data.filter(user => user.idUtilisateur != deletedUserId);
@@ -107,11 +123,18 @@ setData(response.data);
           console.log('EROOR')
       }
   }
-
- const Delete = ({id}) => {
+  const [activeComponent, setActiveComponent] = useState('home');
+ const Action = ({id}) => {
   return (
-    
+    <>
     <div style={{cursor : 'pointer'}} onClick={()=>handleClickOpen(id)}><DeleteForeverIcon color= 'error'/></div>
+   
+    <div style={{cursor : 'pointer'}} variant="outlined" onClick={()=>handleEditOpen(id)}>
+<EditIcon color= 'error'/>
+</div>
+
+
+    </>
     
   );
 };
@@ -122,7 +145,7 @@ setData(response.data);
 }, []);
   
   /*var token=localStorage.getItem("access_token");
-  axios.get('http://localhost:8080/utilisateur/all', {
+  axios.get('http://localhost:8080/GDI/utilisateur/all', {
     headers: {
         Authorization: `Bearer ${token}`
     }
@@ -140,8 +163,7 @@ setData(response.data);
    
 data.sort(function(e1, e2){return e2.idUtilisateur-e1.idUtilisateur});
    rows = data.map(element => {
-    console.log(element)
-    return {nom :element.nom, prenom:element.prenom, cin:element.cin, tel:element.tel, numBureau:element.numBureau, email:element.email ,grade:element.grade,fonction:element.fonction,actions:<Delete id={element.idUtilisateur}/>}
+    return {nom :element.nom, prenom:element.prenom, cin:element.cin, tel:element.tel, numBureau:element.numBureau, email:element.email ,grade:element.grade,fonction:element.fonction,actions:<Action id={element.idUtilisateur}/>}
 });
 
   
@@ -161,8 +183,12 @@ data.sort(function(e1, e2){return e2.idUtilisateur-e1.idUtilisateur});
     setPage(0);
   };
 
+  const getUserById=(id)=>{
+    return data.find(user => user.idUtilisateur == id);
+  }
   return (
     <>
+   <SearchAppBar/>
    <Dialog
         open={deleteUserOpen}
         onClose={handleClose}
@@ -185,6 +211,8 @@ data.sort(function(e1, e2){return e2.idUtilisateur-e1.idUtilisateur});
           </Button>
         </DialogActions>
       </Dialog>
+      <UpdateForm EditOpen ={Editopen1} handleClose={handleEditClose} handleClickOpen ={()=>handleEditOpen(updatedUserId)} EditedUser={getUserById(updatedUserId)}></UpdateForm>
+      
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <TableContainer sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label="sticky table">

@@ -17,7 +17,7 @@ function App() {
       
       <Route path='/' element={<SignIn />}/>
   <Route path='/dispaly' element={<StickyHeadTable/>}/>
-  <Route path='/add' element={<FormDialog/>}/>
+  
     </Routes>
       
     </div>

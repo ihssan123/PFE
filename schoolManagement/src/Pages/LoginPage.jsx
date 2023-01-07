@@ -57,7 +57,7 @@ export default function SignIn() {
   
       var config = {
         method: 'post',
-        url: 'http://localhost:8080/login',
+        url: 'http://localhost:8080/GDI/login',
         headers: { 
           'Content-Type': 'application/x-www-form-urlencoded'
         },

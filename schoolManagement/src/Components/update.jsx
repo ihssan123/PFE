@@ -23,14 +23,15 @@ import Switch from '@mui/material/Switch';
 import axios from 'axios';
 
 
-export default function FormDialog({setData}) {
+export default function UpdateForm({EditOpen,handleClickOpen,EditedUser,handleClose}) {
   const [isAdmin, setIsAdmin] = React.useState(false)
   
   const [user,setUser]=useState({nom:"",prenom:"",email:"",cin:"",tel:"",numBureau:0,password:""});
-  const [open, setOpen] = useState(false);
+
   const [role, setRole] = useState(['UTILISATEUR']);
   const [grade, setGrade] = useState('');
   const [fonction, setFonction] = useState('');
+  console.log(user);
   const handleChangeFonction = (event) => {
     if(event.target.value==="TECHNICIEN") setIsAdmin(false) ;
     setFonction(event.target.value);
@@ -49,14 +50,9 @@ export default function FormDialog({setData}) {
     console.log(event.target.value)
   };
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const addUser= async()=>{
+ 
+  const EditUser= async()=>{
     var roles =[
       {
         nom : "UTILISATEUR"
@@ -80,7 +76,7 @@ export default function FormDialog({setData}) {
       fonction:fonction,
       roles:roles
   })
-    var result = await axios.post('http://localhost:8080/GDI/utilisateur/add',{
+    var result = await axios.put('http://localhost:8080/GDI/utilisateur/update',{
       nom:user.nom,
       prenom:user.prenom,
       cin:user.cin,
@@ -94,25 +90,22 @@ export default function FormDialog({setData}) {
   }
   
   )
-  setData([]);
+  //setData([]);
   handleClose(false);
     console.log(result)
    }
-
+  console.log(EditedUser)
   return (
     <div>
-      <Button variant="outlined" onClick={handleClickOpen}>
-        Ajouter Utilisateur
-      </Button>
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog onClick={handleClickOpen} open={EditOpen} onClose={handleClose}>
 
-        <DialogTitle>Ajouter un Etudiant</DialogTitle>
+        <DialogTitle>Modifier Utilisateur</DialogTitle>
         <DialogContent>
           <DialogContentText>
           veuillez saisir toute les informations
           </DialogContentText>
           <TextField
-          value={user.nom}
+          value={user?.nom}
             autoFocus
             saturn
             margin="dense"
@@ -204,7 +197,7 @@ export default function FormDialog({setData}) {
         >  
          
           
-          <MenuItem value='enseignant' >enseignant</MenuItem>
+          <MenuItem value='ENSEIGNANT' >ENSEIGNANT</MenuItem>
           <MenuItem value='TECHNICIEN' >TECHNICIEN</MenuItem>
           
         </Select>
@@ -217,7 +210,7 @@ export default function FormDialog({setData}) {
       <FormGroup>
         <InputLabel style={{marginTop: 20}} id="demo-simple-select-label">grade</InputLabel>
         <div/>
-        {fonction=="enseignant" ?
+        {fonction=="ENSEIGNANT" ?
         <Select
         style={{marginTop: 20}}
           labelId="demo-simple-select-label"
@@ -272,7 +265,7 @@ export default function FormDialog({setData}) {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Annuler</Button>
-          <Button onClick={addUser}>ajouter</Button>
+          <Button onClick={EditUser}>modifier</Button>
         </DialogActions>
       </Dialog>
     </div>
